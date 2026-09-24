@@ -1,0 +1,18 @@
+# Neovim swap, undo, and backup files
+*.swp
+*.swo
+*~
+*.un~
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Session & state files
+.session.vim
+Session.vim
+
+# Local scratch / test files
+*.log
+/scratch/
+/tmp/
