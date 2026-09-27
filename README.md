@@ -91,6 +91,7 @@ Neovim dynamically detects the project root directory and project type using est
 * **C / C++**: `CMakeLists.txt`, `Makefile`, `compile_commands.json`
 * **Rust / Go**: `Cargo.toml`, `go.mod`
 * **dbt / Data Pipelines**: `dbt_project.yml`
+* **PHP / Laravel**: `artisan`, `composer.json`
 * **Cloud & Containers**: `main.tf`, `*.tf`, `Dockerfile`, `compose.yaml`, `Taskfile.yml`
 
 When executing project runs or terminal commands (`<leader>rr`, `<leader>rb`, `<leader>rt`), Neovim automatically runs within the detected project root directory.
@@ -105,6 +106,8 @@ When executing project runs or terminal commands (`<leader>rr`, `<leader>rb`, `<
 | **Flutter / Dart** | `dartls` (`flutter-tools.nvim`) | `dart format` | `dart analyze` | `flutter test` | Dart DAP (Built-in) |
 | **Android Native (Kotlin/Java)** | `kotlin_language_server`, `jdtls`, `lemminx` | `ktlint`, `google-java-format`, `xmlformatter` | `ktlint` | Gradle / JUnit | `java-debug-adapter`, `codelldb` |
 | **React Native / Expo** | `ts_ls`, `tailwindcss`, `jsonls` | `prettierd` / `prettier` | `eslint_d` | `neotest-jest` / `npm test` | `js-debug-adapter` |
+| **Web (Vue 3, TS, HTML, CSS)** | `ts_ls` (hybrid), `vue_ls`, `tailwindcss`, `emmet_language_server` | `oxfmt` / `prettierd` / `prettier` (dynamic) | `oxlint` / `eslint_d` | `neotest-jest` / `npm test` | `js-debug-adapter` |
+| **PHP & Laravel Blade** | `intelephense` | `php-cs-fixer` / `pint`, `blade-formatter` | `intelephense` (LSP) | Pest / PHPUnit | - |
 | **Python / Data Eng** | `basedpyright` / `ruff` | `ruff_organize_imports`, `ruff_format` | `ruff` (LSP) | `neotest-python` (pytest) | `debugpy` |
 | **Java / Spring Boot** | `jdtls` (via `ftplugin/java.lua`) | `google-java-format` | Native JDTLS | JDTLS / JUnit | `java-debug-adapter` |
 | **C / C++** | `clangd` (with clang-tidy & IWYU) | `clang-format` | `clangd` (LSP) | - | `codelldb` |
@@ -404,6 +407,7 @@ text and tabular `repr()` output work out of the box.
 ### Dependencies & Packages (`<leader>n`)
 * `<leader>nt` / `<leader>nr` — Toggle virtual text / reload Cargo crates (`crates.nvim`)
 * `<leader>nu` / `<leader>na` — Update single crate / update all crates in Cargo.toml (`crates.nvim`)
+* `<leader>nv` / `<leader>nf` / `<leader>nd` — Show crate versions / features / dependencies popup (`crates.nvim`)
 * `<leader>nH` / `<leader>nD` — Open crate homepage / docs.rs documentation (`crates.nvim`)
 * `<leader>ns` / `<leader>nh` — Show / hide package dependency versions in package.json (`package-info.nvim`)
 * `<leader>nu` / `<leader>nd` — Update / delete package.json dependency (`package-info.nvim`)

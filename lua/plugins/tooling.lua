@@ -145,15 +145,83 @@ return {
     opts = {
       completion = {
         cmp = { enabled = true },
+        crates = {
+          enabled = true,
+          max_results = 8,
+          min_chars = 3,
+        },
+      },
+      lsp = {
+        enabled = true,
+        actions = true,
+        completion = true,
+        hover = true,
       },
     },
     keys = {
-      { "<leader>nt", function() require("crates").toggle() end, desc = "Crates: Toggle virtual text" },
-      { "<leader>nr", function() require("crates").reload() end, desc = "Crates: Reload" },
-      { "<leader>nu", function() require("crates").update_crate() end, desc = "Crates: Update crate" },
-      { "<leader>na", function() require("crates").update_all_crates() end, desc = "Crates: Update all crates" },
-      { "<leader>nH", function() require("crates").open_homepage() end, desc = "Crates: Open homepage" },
-      { "<leader>nD", function() require("crates").open_documentation() end, desc = "Crates: Open documentation" },
+      {
+        "<leader>nt",
+        function()
+          require("crates").toggle()
+        end,
+        desc = "Crates: Toggle virtual text",
+      },
+      {
+        "<leader>nr",
+        function()
+          require("crates").reload()
+        end,
+        desc = "Crates: Reload",
+      },
+      {
+        "<leader>nu",
+        function()
+          require("crates").update_crate()
+        end,
+        desc = "Crates: Update crate",
+      },
+      {
+        "<leader>na",
+        function()
+          require("crates").update_all_crates()
+        end,
+        desc = "Crates: Update all crates",
+      },
+      {
+        "<leader>nv",
+        function()
+          require("crates").show_versions_popup()
+        end,
+        desc = "Crates: Show versions popup",
+      },
+      {
+        "<leader>nf",
+        function()
+          require("crates").show_features_popup()
+        end,
+        desc = "Crates: Show features popup",
+      },
+      {
+        "<leader>nd",
+        function()
+          require("crates").show_dependencies_popup()
+        end,
+        desc = "Crates: Show dependencies popup",
+      },
+      {
+        "<leader>nH",
+        function()
+          require("crates").open_homepage()
+        end,
+        desc = "Crates: Open homepage",
+      },
+      {
+        "<leader>nD",
+        function()
+          require("crates").open_documentation()
+        end,
+        desc = "Crates: Open documentation",
+      },
     },
   },
 
@@ -164,11 +232,41 @@ return {
     dependencies = { "MunifTanjim/nui.nvim" },
     opts = {},
     keys = {
-      { "<leader>ns", function() require("package-info").show() end, desc = "Package: Show versions" },
-      { "<leader>nh", function() require("package-info").hide() end, desc = "Package: Hide versions" },
-      { "<leader>nu", function() require("package-info").update() end, desc = "Package: Update dependency" },
-      { "<leader>nd", function() require("package-info").delete() end, desc = "Package: Delete dependency" },
-      { "<leader>ni", function() require("package-info").install() end, desc = "Package: Install new dependency" },
+      {
+        "<leader>ns",
+        function()
+          require("package-info").show()
+        end,
+        desc = "Package: Show versions",
+      },
+      {
+        "<leader>nh",
+        function()
+          require("package-info").hide()
+        end,
+        desc = "Package: Hide versions",
+      },
+      {
+        "<leader>nu",
+        function()
+          require("package-info").update()
+        end,
+        desc = "Package: Update dependency",
+      },
+      {
+        "<leader>nd",
+        function()
+          require("package-info").delete()
+        end,
+        desc = "Package: Delete dependency",
+      },
+      {
+        "<leader>ni",
+        function()
+          require("package-info").install()
+        end,
+        desc = "Package: Install new dependency",
+      },
     },
   },
 

@@ -43,6 +43,9 @@ return {
         "gopls",
         "rust-analyzer",
         "lemminx",
+        "vue-language-server",
+        "intelephense",
+        "emmet-language-server",
         -- Formatters
         "stylua",
         "google-java-format",
@@ -54,6 +57,8 @@ return {
         "gofumpt",
         "goimports",
         "xmlformatter",
+        "php-cs-fixer",
+        "blade-formatter",
         -- Linters
         "eslint_d",
         "shellcheck",
@@ -193,6 +198,9 @@ return {
         "objc",
         "dart",
         "xml",
+        "vue",
+        "php",
+        "php_only",
         -- dbt macros/templates and standalone .jinja files (tree-sitter-sql has
         -- no jinja-injection query, so this only lights up *.jinja/htmldjango
         -- buffers directly, not the jinja tags inside .sql models — see README §4)

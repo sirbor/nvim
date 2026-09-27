@@ -87,3 +87,38 @@ autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
     end
   end,
 })
+
+-- Register filetypes (Blade templates, Pug, Templ)
+vim.filetype.add {
+  pattern = {
+    [".*%.blade%.php"] = "blade",
+  },
+  extension = {
+    pug = "pug",
+    templ = "templ",
+  },
+}
+
+-- Register Blade parser for nvim-treesitter
+autocmd("User", {
+  pattern = "TSUpdate",
+  group = group "blade_treesitter",
+  callback = function()
+    local ok_parsers, parsers = pcall(require, "nvim-treesitter.parsers")
+    if ok_parsers and not parsers.blade then
+      parsers.blade = {
+        install_info = {
+          url = "https://github.com/EmranMR/tree-sitter-blade",
+          files = { "src/parser.c" },
+          branch = "main",
+        },
+        filetype = "blade",
+      }
+    end
+  end,
+})
+
+-- Ensure blade filetype maps to the blade parser if treesitter is present
+pcall(function()
+  vim.treesitter.language.register("blade", "blade")
+end)

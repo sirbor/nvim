@@ -50,6 +50,9 @@ local servers = {
   "lemminx",
   "sourcekit",
   "dartls",
+  "vue_ls",
+  "intelephense",
+  "emmet_language_server",
 }
 
 -- Binary names used by each server (Mason installs these into mason/bin).
@@ -76,6 +79,9 @@ local server_bins = {
   lemminx = "lemminx",
   sourcekit = "sourcekit-lsp",
   dartls = "dart",
+  vue_ls = "vue-language-server",
+  intelephense = "intelephense",
+  emmet_language_server = "emmet-language-server",
 }
 
 local function is_available(name)
@@ -87,7 +93,9 @@ local function enable_available()
   local available = vim.tbl_filter(is_available, servers)
   -- If both basedpyright and pyright are available, prefer basedpyright
   if vim.tbl_contains(available, "basedpyright") and vim.tbl_contains(available, "pyright") then
-    available = vim.tbl_filter(function(s) return s ~= "pyright" end, available)
+    available = vim.tbl_filter(function(s)
+      return s ~= "pyright"
+    end, available)
   end
   if #available > 0 then
     vim.lsp.enable(available)
@@ -133,9 +141,82 @@ vim.lsp.config("ruff", {
   end,
 })
 
--- TypeScript / JavaScript
+-- TypeScript / JavaScript / Vue (Hybrid Mode)
+local mason_packages = vim.env.MASON and (vim.env.MASON .. "/packages") or (vim.fn.stdpath "data" .. "/mason/packages")
+local vue_language_server_path = mason_packages .. "/vue-language-server/node_modules/@vue/language-server"
+local mason_tsdk = mason_packages .. "/typescript-language-server/node_modules/typescript/lib"
+
+---@param root_dir string|nil
+---@return string
+local function resolve_tsdk(root_dir)
+  if root_dir then
+    local project_tsdk = vim.fs.joinpath(root_dir, "node_modules", "typescript", "lib")
+    if vim.uv.fs_stat(project_tsdk) then
+      return project_tsdk
+    end
+  end
+  return mason_tsdk
+end
+
+local tsserver_filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" }
+local vue_plugin = {
+  name = "@vue/typescript-plugin",
+  location = vue_language_server_path,
+  languages = { "vue" },
+  configNamespace = "typescript",
+}
+
 vim.lsp.config("ts_ls", {
   root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
+  init_options = {
+    plugins = {
+      vue_plugin,
+    },
+  },
+  filetypes = tsserver_filetypes,
+})
+
+vim.lsp.config("vue_ls", {
+  root_markers = { "package.json", "vue.config.js", "vite.config.ts", "vite.config.js", ".git" },
+  cmd = function(dispatchers, config)
+    local tsdk = resolve_tsdk(config and config.root_dir or nil)
+    return vim.lsp.rpc.start({
+      "vue-language-server",
+      "--stdio",
+      "--tsdk=" .. tsdk,
+    }, dispatchers)
+  end,
+})
+
+-- PHP & Laravel Blade: Intelephense
+vim.lsp.config("intelephense", {
+  root_markers = { "composer.json", ".git" },
+  filetypes = { "php", "blade" },
+  settings = {
+    intelephense = {
+      files = {
+        maxSize = 5000000,
+        associations = { "*.php", "*.blade.php" },
+      },
+    },
+  },
+})
+
+-- Emmet (HTML/CSS/Vue/Blade snippet expansion)
+vim.lsp.config("emmet_language_server", {
+  filetypes = {
+    "css",
+    "html",
+    "javascript",
+    "javascriptreact",
+    "less",
+    "sass",
+    "scss",
+    "pug",
+    "typescriptreact",
+    "vue",
+    "blade",
+  },
 })
 
 -- C / C++: Clangd with background indexing, clang-tidy, and project root detection
@@ -211,23 +292,25 @@ vim.lsp.config("yamlls", {
         enable = false,
         url = "",
       },
-      schemas = ok_schemastore and schemastore.yaml.schemas {
-        extra = {
-          {
-            description = "Kubernetes YAML",
-            fileMatch = { "*.k8s.yaml", "*.k8s.yml" },
-            name = "k8s.yaml",
-            url = "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.30.0-standalone-strict/all.json",
-          },
+      schemas = ok_schemastore
+          and schemastore.yaml.schemas {
+            extra = {
+              {
+                description = "Kubernetes YAML",
+                fileMatch = { "*.k8s.yaml", "*.k8s.yml" },
+                name = "k8s.yaml",
+                url = "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.30.0-standalone-strict/all.json",
+              },
+            },
+          }
+        or {
+          kubernetes = "*.k8s.yaml",
+          ["http://json.schemastore.org/github-workflow"] = ".github/workflows/*",
+          ["http://json.schemastore.org/github-action"] = ".github/action.{yml,yaml}",
+          ["http://json.schemastore.org/docker-compose"] = "docker-compose*.{yml,yaml}",
+          ["http://json.schemastore.org/kustomization"] = "kustomization.{yml,yaml}",
+          ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "compose*.{yml,yaml}",
         },
-      } or {
-        kubernetes = "*.k8s.yaml",
-        ["http://json.schemastore.org/github-workflow"] = ".github/workflows/*",
-        ["http://json.schemastore.org/github-action"] = ".github/action.{yml,yaml}",
-        ["http://json.schemastore.org/docker-compose"] = "docker-compose*.{yml,yaml}",
-        ["http://json.schemastore.org/kustomization"] = "kustomization.{yml,yaml}",
-        ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "compose*.{yml,yaml}",
-      },
     },
   },
 })

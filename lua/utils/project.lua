@@ -36,6 +36,8 @@ local root_patterns = {
   "Taskfile.yaml",
   "deno.json",
   "deno.jsonc",
+  "artisan",
+  "composer.json",
 }
 
 --- Find the project root for the given buffer or working directory
@@ -83,7 +85,11 @@ function M.detect_project_type(root)
   elseif has "build.gradle" or has "build.gradle.kts" then
     return "java_gradle"
   -- iOS / Swift
-  elseif has "Package.swift" or #vim.fn.glob(root .. "/*.xcodeproj", true, true) > 0 or #vim.fn.glob(root .. "/*.xcworkspace", true, true) > 0 then
+  elseif
+    has "Package.swift"
+    or #vim.fn.glob(root .. "/*.xcodeproj", true, true) > 0
+    or #vim.fn.glob(root .. "/*.xcworkspace", true, true) > 0
+  then
     return "ios_swift"
   -- Data Engineering / dbt
   elseif has "dbt_project.yml" then
@@ -124,6 +130,11 @@ function M.detect_project_type(root)
     return "docker"
   elseif has "Taskfile.yml" or has "Taskfile.yaml" then
     return "taskfile"
+  -- PHP / Laravel
+  elseif has "artisan" then
+    return "laravel"
+  elseif has "composer.json" then
+    return "php_composer"
   end
 
   return "generic"
@@ -218,6 +229,10 @@ function M.get_run_command(root)
     return "docker compose up -d"
   elseif ptype == "taskfile" then
     return "task default || task start"
+  elseif ptype == "laravel" then
+    return "php artisan serve"
+  elseif ptype == "php_composer" then
+    return "php -S localhost:8000"
   end
 
   if file ~= "" and vim.bo.filetype == "python" then
@@ -272,6 +287,10 @@ function M.get_build_command(root)
     return "dbt build"
   elseif ptype == "taskfile" then
     return "task build"
+  elseif ptype == "laravel" then
+    return "composer install && (npm run build || pnpm build || yarn build || bun run build || true)"
+  elseif ptype == "php_composer" then
+    return "composer install"
   end
 
   return "echo 'No build command configured for this project type (" .. ptype .. ")'"
@@ -319,6 +338,10 @@ function M.get_test_command(root)
     return "dbt test"
   elseif ptype == "taskfile" then
     return "task test"
+  elseif ptype == "laravel" then
+    return "php artisan test || ./vendor/bin/pest || ./vendor/bin/phpunit"
+  elseif ptype == "php_composer" then
+    return "./vendor/bin/phpunit || ./vendor/bin/pest || composer test"
   end
 
   return "echo 'No test command configured for this project type (" .. ptype .. ")'"
