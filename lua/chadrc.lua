@@ -2,7 +2,7 @@
 local M = {}
 
 M.base46 = {
-  theme = "chadracula-evondev",
+  theme = "oceanic-next",
   transparency = false,
 
   hl_override = {

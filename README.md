@@ -33,7 +33,144 @@ Run `:CheckDeps` inside Neovim at any time to audit your system dependencies.
 
 ---
 
-## 2. Directory Architecture
+## 2. Installation Manual
+
+Follow these steps to set up this configuration on a fresh system or migrate from an existing setup.
+
+### Step 1: Install Base Prerequisites
+
+Ensure your system has **Neovim (>= 0.11 / 0.12+)**, **Git**, **Ripgrep**, **Fd**, a **C compiler**, and a terminal with a **Nerd Font** enabled.
+
+#### macOS (via Homebrew)
+```bash
+# Core editor and essential search utilities
+brew install neovim git ripgrep fd fzf
+
+# C/C++ compiler and SDK headers required for Treesitter parser compilation
+xcode-select --install
+
+# Recommended Nerd Font for glyphs, file icons, and statusline symbols
+brew install --cask font-jetbrains-mono-nerd-font
+```
+
+#### Linux (Debian / Ubuntu)
+```bash
+# Core CLI dependencies and compiler
+sudo apt update && sudo apt install -y git curl ripgrep fd-find fzf build-essential
+
+# Symlink fd if packaged as fdfind
+mkdir -p ~/.local/bin && ln -sf "$(which fdfind)" ~/.local/bin/fd
+
+# Install Neovim >= 0.11 (Official AppImage or tarball)
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+chmod u+x nvim-linux-x86_64.appimage
+sudo mv nvim-linux-x86_64.appimage /usr/local/bin/nvim
+```
+
+> [!IMPORTANT]
+> **Nerd Font Configuration**: Verify that your terminal emulator (e.g., Ghostty, Alacritty, Kitty, WezTerm, iTerm2) has a patched **Nerd Font** selected as its primary font (e.g., *JetBrainsMono Nerd Font*). Without this, statusline glyphs, file tree icons, and LSP diagnostics will display as broken symbols.
+
+---
+
+### Step 2: Backup Existing Configuration & Runtime State
+
+To guarantee a clean bootstrap and prevent conflicts with existing plugins, shada, or mason state from a previous setup, back up and clear existing Neovim directories:
+
+```bash
+# Backup Neovim configuration
+[ -d ~/.config/nvim ] && mv ~/.config/nvim ~/.config/nvim.bak.$(date +%Y%m%d%H%M%S)
+
+# Clean / backup previous runtime data, state, and cache
+[ -d ~/.local/share/nvim ] && mv ~/.local/share/nvim ~/.local/share/nvim.bak.$(date +%Y%m%d%H%M%S)
+[ -d ~/.local/state/nvim ] && mv ~/.local/state/nvim ~/.local/state/nvim.bak.$(date +%Y%m%d%H%M%S)
+[ -d ~/.cache/nvim ] && mv ~/.cache/nvim ~/.cache/nvim.bak.$(date +%Y%m%d%H%M%S)
+```
+
+---
+
+### Step 3: Clone the Repository
+
+Clone this repository into `~/.config/nvim`:
+
+```bash
+# Using SSH (recommended):
+git clone git@github.com:sirbor/nvim.git ~/.config/nvim
+
+# Or using HTTPS:
+git clone https://github.com/sirbor/nvim.git ~/.config/nvim
+```
+
+---
+
+### Step 4: First Launch & Automated Bootstrap
+
+Launch Neovim:
+
+```bash
+nvim
+```
+
+Neovim executes an automated zero-touch bootstrap:
+1. **lazy.nvim** auto-clones into `~/.local/share/nvim/lazy/lazy.nvim` and syncs all pinned plugins specified in `lazy-lock.json`.
+2. **mason-tool-installer** triggers automatically on startup, installing 40+ language servers, linters, formatters, and debug adapters into Mason's isolated bin directory (`~/.local/share/nvim/mason/bin/`).
+3. **nvim-treesitter** compiles language parsers for all supported languages.
+4. **Base46** compiles and activates theme and statusline caches.
+
+> [!TIP]
+> On the very first launch, allow 1–2 minutes for Lazy and Mason to finish their parallel downloads. Once the installer popups conclude, exit Neovim with `:qa` and restart it (`nvim`). This ensures all newly compiled binaries, treesitter parsers, and runtime shims are loaded cleanly.
+
+---
+
+### Step 5: Verify Your Installation
+
+Run the built-in audit commands inside Neovim:
+
+* `:CheckDeps` — Audits your host OS for all external CLI dependencies across Core, Compilers, Mobile, Data Engineering, and AI tools.
+* `:checkhealth` — Runs Neovim's comprehensive health check across runtime providers, plugins, and LSP servers.
+
+---
+
+### Step 6: Post-Install Configuration & Optional Modules
+
+Configure any optional integrations relevant to your development workflows:
+
+* **GitHub Copilot**:
+  Authenticate your GitHub account directly within Neovim:
+  ```vim
+  :Copilot auth
+  ```
+* **Python & Data Engineering (Molten / Jupyter Notebooks)**:
+  Install the remote plugin host and Jupyter kernel client:
+  ```bash
+  pip install pynvim jupyter_client ipykernel
+  ```
+  Then run `:UpdateRemotePlugins` inside Neovim.
+* **AI Coding Assistants**:
+  - **Claude Code CLI**: `curl -fsSL https://downloads.anthropic.com/claude-code-install.sh | bash`
+  - **Antigravity CLI (`agy`)**: Install and ensure `agy` is available on your `$PATH`.
+  - **OpenAI Codex CLI (`codex`)**: `npm install -g @openai/codex`
+* **Mobile & Language Toolchains**:
+  - **iOS / macOS**: Verify Xcode is installed and run `xcode-select --install`. Install log formatter: `brew install xcbeautify swiftlint`.
+  - **Android**: Install the Android Command Line Tools / Android Studio and set `ANDROID_HOME` in your shell environment.
+  - **Flutter**: Install Flutter SDK (`brew install --cask flutter`) and verify with `flutter doctor`.
+  - **Java / Spring Boot**: Install OpenJDK 17 or 21 (`brew install openjdk@21`).
+
+---
+
+### Step 7: Updating & Maintenance
+
+Keep your configuration, plugins, and tooling up to date:
+
+| Action | Command | Purpose |
+| :--- | :--- | :--- |
+| **Update Configuration** | `git -C ~/.config/nvim pull` | Fetch the latest configuration commits |
+| **Sync Plugins** | `:Lazy sync` | Sync and prune plugins against `lazy-lock.json` |
+| **Update Mason Tools** | `:MasonToolsUpdate` | Update installed LSPs, formatters, and linters |
+| **Update Treesitter** | `:TSUpdate` | Update Treesitter language parsing grammars |
+
+---
+
+## 3. Directory Architecture
 
 ```
 ~/.config/nvim/
@@ -77,7 +214,7 @@ Run `:CheckDeps` inside Neovim at any time to audit your system dependencies.
 
 ---
 
-## 3. Project-Aware Architecture & Environment Detection
+## 4. Project-Aware Architecture & Environment Detection
 
 Neovim dynamically detects the project root directory and project type using established root markers:
 * **iOS / macOS**: `Package.swift`, `*.xcodeproj`, `*.xcworkspace`
@@ -98,7 +235,7 @@ When executing project runs or terminal commands (`<leader>rr`, `<leader>rb`, `<
 
 ---
 
-## 4. Language & Tooling Matrix
+## 5. Language & Tooling Matrix
 
 | Language / Domain | LSP Server(s) | Formatter (`conform`) | Linter (`nvim-lint`) | Test Adapter | DAP Debugger |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -145,7 +282,7 @@ When executing project runs or terminal commands (`<leader>rr`, `<leader>rb`, `<
 
 ---
 
-## 5. Complete Keybindings Reference
+## 6. Complete Keybindings Reference
 
 ### Core Editing & Navigation
 * `;` — Command line (`:`)
