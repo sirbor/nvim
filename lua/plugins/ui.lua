@@ -205,4 +205,22 @@ return {
       scope = "window",
     },
   },
+
+  -- VS Code-style vertical and horizontal scrollbars with overview ruler and minimap
+  {
+    "mihovilrak/scroll.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    cmd = {
+      "ScrollToggle",
+      "ScrollEnable",
+      "ScrollDisable",
+      "ScrollRefresh",
+      "ScrollMinimapToggle",
+    },
+    opts = {},
+    keys = {
+      { "<leader>ub", "<cmd>ScrollToggle<cr>", desc = "Toggle scrollbars" },
+      { "<leader>uB", "<cmd>ScrollMinimapToggle<cr>", desc = "Toggle minimap" },
+    },
+  },
 }
